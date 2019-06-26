@@ -2,17 +2,17 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:extended_image/src/extended_image_border_painter.dart';
-import 'package:extended_image/src/gesture/extended_image_gesture.dart';
 import 'package:extended_image/src/extended_image_typedef.dart';
 import 'package:extended_image/src/extended_image_utils.dart';
+import 'package:extended_image/src/gesture/extended_image_gesture.dart';
 import 'package:extended_image/src/image/extended_raw_image.dart';
 import 'package:extended_image_library/extended_image_library.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter/semantics.dart';
 import 'package:http_client_helper/http_client_helper.dart';
 
 import 'gesture/extended_image_slide_page.dart';
@@ -730,7 +730,8 @@ class _ExtendedImageState extends State<ExtendedImage> with ExtendedImageState {
   void _updateSourceStream(ImageStream newStream, {bool rebuild = false}) {
     if (_imageStream?.key == newStream?.key) return;
     //print("_updateSourceStream");
-    if (_isListeningToStream) _imageStream.removeListener(_handleImageChanged);
+    if (_isListeningToStream)
+      _imageStream.removeListener(new ImageStreamListener(_handleImageChanged));
 
     if (!widget.gaplessPlayback || rebuild) {
       setState(() {
@@ -741,18 +742,20 @@ class _ExtendedImageState extends State<ExtendedImage> with ExtendedImageState {
 
     _imageStream = newStream;
     if (_isListeningToStream)
-      _imageStream.addListener(_handleImageChanged, onError: _loadFailed);
+      _imageStream.addListener(
+          new ImageStreamListener(_handleImageChanged, onError: _loadFailed));
   }
 
   void _listenToStream() {
     if (_isListeningToStream) return;
-    _imageStream.addListener(_handleImageChanged, onError: _loadFailed);
+    _imageStream.addListener(
+        new ImageStreamListener(_handleImageChanged, onError: _loadFailed));
     _isListeningToStream = true;
   }
 
   void _stopListeningToStream() {
     if (!_isListeningToStream) return;
-    _imageStream.removeListener(_handleImageChanged);
+    _imageStream.removeListener(new ImageStreamListener(_handleImageChanged));
     _isListeningToStream = false;
   }
 
